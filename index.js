@@ -39,6 +39,8 @@ Sorta.prototype.appendTo = function (target) {
 };
 
 Sorta.prototype.write = function (row) {
+    var self = this;
+    
     if (typeof row !== 'object') {
         this.emit('error', new Error('non-object parameter to write: ' + row));
     }
@@ -63,26 +65,25 @@ Sorta.prototype.write = function (row) {
         r.value = row.value;
         r.index = i;
         r.element = this._createElement(r);
+        r.update = function (v) {
+            self.write({ key : r.key, value : v });
+        };
         this.element.appendChild(r.element);
     }
     else {
         this.element.removeChild(r.element);
         this.sorted.splice(r.index, 1);
     }
-    
-    if (this.sorted[i]) {
-        this.element.insertBefore(r.element, this.sorted[i].element);
-    }
-    else {
-        this.element.appendChild(r.element);
-    }
-    
     this.sorted.splice(i, 0, r);
     r.index = i;
-    
     r.value = row.value;
-    r.emit('update', r);
-    this.emit('update', r);
+    
+    if (i === this.sorted.length - 1) {
+        this.element.appendChild(r.element);
+    }
+    else {
+        this.element.insertBefore(r.element, this.sorted[i+1].element);
+    }
     
     for (; i < this.sorted.length; i++) {
         this.sorted[i].index = i;

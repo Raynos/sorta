@@ -1,4 +1,4 @@
-var sorta = require('../');
+var sorta = require('../../');
 var $ = require('jquery-browserify');
 
 var JSONStream = require('JSONStream');
