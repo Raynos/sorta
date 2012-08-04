@@ -49,7 +49,6 @@ Sorta.prototype.write = function (row) {
     }
     
     var r = this.rows[row.key];
-    /*
     if (r && r.index === i) {
         if (r.value !== row.value) {
             r.value = row.value;
@@ -57,7 +56,6 @@ Sorta.prototype.write = function (row) {
         }
         return;
     }
-    */
     
     if (!r) {
         r = this.rows[row.key] = new EventEmitter;
