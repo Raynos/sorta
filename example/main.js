@@ -13,10 +13,9 @@ var s = sorta(function (row) {
     var rank = $('<span>').attr('class', 'rank');
     var score = $('<span>').attr('class', 'score');
     
-    row.on('update', function (r) {
-console.log('#' + r.index + ' ' + r.key + ' : ' + r.value);
-        rank.text(r.index + 1);
-        score.text(r.value);
+    row.on('update', function () {
+        rank.text(row.index + 1);
+        score.text(row.value);
     });
     
     return $('<div>').append('#', rank, ' ', name, ', ', score, ' points')[0];

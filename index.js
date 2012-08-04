@@ -26,7 +26,6 @@ function Sorta (opts, createElement) {
     this.writable = true;
     this.element = document.createElement('div');
     
-    this.elements = {};
     this.rows = {};
     this.sorted = [];
     
@@ -44,49 +43,52 @@ Sorta.prototype.write = function (row) {
         this.emit('error', new Error('non-object parameter to write: ' + row));
     }
     
-    var r = this.rows[row.key];
-    if (r) {
-        this.sorted.splice(r.index, 1);
-    }
-    
     for (var i = 0; i < this.sorted.length; i++) {
         var c = this.compare(this.sorted[i].value, row.value);
-        if (c < 0) break;
+        if (c > 0) break;
     }
     
-    var created = !r;
+    var r = this.rows[row.key];
+    /*
+    if (r && r.index === i) {
+        if (r.value !== row.value) {
+            r.value = row.value;
+            r.emit('update', r);
+        }
+        return;
+    }
+    */
+    
     if (!r) {
         r = this.rows[row.key] = new EventEmitter;
         r.key = row.key;
         r.value = row.value;
         r.index = i;
-        this.elements[row.key] = this._createElement(r);
+        r.element = this._createElement(r);
+        this.element.appendChild(r.element);
     }
-    else if (r.index !== i) {
-        this.element.removeChild(this.elements[row.key]);
+    else {
+        this.element.removeChild(r.element);
+        this.sorted.splice(r.index, 1);
     }
-        
+    
+    if (this.sorted[i+1]) {
+        this.element.insertBefore(r.element, this.sorted[i+1]);
+    }
+    else {
+        this.element.appendChild(r.element);
+    }
+    
     this.sorted.splice(i, 0, r);
-    
-    if (created || r.index !== i) {
-        if (i === this.sorted.length - 1) {
-            this.element.appendChild(this.elements[row.key]);
-        }
-        else {
-            var prev = this.sorted[i + 1].key;
-            this.elements[prev].insertBefore(this.elements[row.key]);
-        }
-    }
-    
     r.index = i;
     
-    if (r.value !== row.value) {
-        r.value = row.value;
-        r.emit('update', r);
-        this.emit('update', r);
-    }
-    for (++i; i < this.sorted.length; i++) {
+    r.value = row.value;
+    r.emit('update', r);
+    this.emit('update', r);
+    
+    for (; i < this.sorted.length; i++) {
         this.sorted[i].index = i;
+        this.sorted[i].emit('update', this.sorted[i]);
         this.emit('update', this.sorted[i]);
     }
 };
