@@ -10,7 +10,7 @@ var sock = shoe(function (stream) {
     var str = JSONStream.stringify();
     str.pipe(stream);
     
-    var rows = { x : 0, y : 0, z : 0 };
+    var rows = { x : 0, y : 0, z : 0, a : 0, b : 0, c : 0 };
     
     Object.keys(rows).forEach(function (key) {
         str.write({ key : key, value : rows[key] });
@@ -21,7 +21,7 @@ var sock = shoe(function (stream) {
         var key = keys[Math.floor(Math.random() * keys.length)];
         rows[key] += 5;
         str.write({ key : key, value : rows[key] });
-    }, 500);
+    }, 100);
     
     var onend = function () { clearInterval(iv) };
     stream.on('end', onend);
