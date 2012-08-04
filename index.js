@@ -72,8 +72,8 @@ Sorta.prototype.write = function (row) {
         this.sorted.splice(r.index, 1);
     }
     
-    if (this.sorted[i+1]) {
-        this.element.insertBefore(r.element, this.sorted[i+1]);
+    if (this.sorted[i]) {
+        this.element.insertBefore(r.element, this.sorted[i].element);
     }
     else {
         this.element.appendChild(r.element);
