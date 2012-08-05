@@ -9,7 +9,7 @@ Preserve the ordering of html elements in the browser as updates stream in.
 [See this example live](http://substack.net/projects/sorta-vote/).
 
 ``` js
-var sorta = require('sorta);
+var sorta = require('sorta');
 var $ = require('jquery-browserify');
 
 var s = sorta(function (row) {
