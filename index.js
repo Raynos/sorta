@@ -10,25 +10,14 @@ var sorta = module.exports = function (opts, cb) {
     }
 };
 
-sorta.ascend = sorta;
-
-sorta.descend = function (cb) {
-    return sorta({
-        compare : function (a, b) { return a - b }
-    }, cb);
-};
-
 function Sorta (opts, createElement) {
     Stream.call(this);
     if (!opts) opts = {};
-    this.compare = opts.compare || function (a, b) { return b - a };
     
     this.writable = true;
     this.element = document.createElement('div');
     
     this.rows = {};
-    this.sorted = [];
-    
     this._createElement = createElement;
 }
 
@@ -40,55 +29,48 @@ Sorta.prototype.appendTo = function (target) {
 
 Sorta.prototype.write = function (row) {
     var self = this;
+    var rows = self.rows;
     
     if (typeof row !== 'object') {
-        this.emit('error', new Error('non-object parameter to write: ' + row));
+        self.emit('error', new Error('non-object parameter to write: ' + row));
     }
     
-    for (var i = 0; i < this.sorted.length; i++) {
-        var c = this.compare(this.sorted[i].value, row.value);
-        if (c > 0) break;
-    }
-    
-    var r = this.rows[row.key];
-    if (r && r.index === i) {
-        if (r.value !== row.value) {
-            r.value = row.value;
-            r.emit('update', r);
-        }
-        return;
-    }
-    
+    var r = rows[row.key];
     if (!r) {
-        r = this.rows[row.key] = new EventEmitter;
+        r = rows[row.key] = new EventEmitter;
         r.key = row.key;
         r.value = row.value;
-        r.index = i;
-        r.element = this._createElement(r);
+        r.element = self._createElement(r);
+        r.element.dataset.key = row.key;
         r.update = function (v) {
             self.write({ key : r.key, value : v });
         };
-        this.element.appendChild(r.element);
     }
     else {
-        this.element.removeChild(r.element);
-        this.sorted.splice(r.index, 1);
+        self.element.removeChild(r.element);
     }
-    this.sorted.splice(i, 0, r);
-    r.index = i;
+    
+    var nodes = self.element.childNodes;
+    for (var i = 0; i < nodes.length; i++) {
+        var key = nodes[i].dataset.key;
+        if (row.value > rows[key].value) {
+            self.element.insertBefore(r.element, nodes[i]);
+            break;
+        }
+    }
+    if (i === nodes.length) {
+        self.element.appendChild(r.element);
+    }
     r.value = row.value;
     
-    if (i === this.sorted.length - 1) {
-        this.element.appendChild(r.element);
-    }
-    else {
-        this.element.insertBefore(r.element, this.sorted[i+1].element);
-    }
-    
-    for (; i < this.sorted.length; i++) {
-        this.sorted[i].index = i;
-        this.sorted[i].emit('update', this.sorted[i]);
-        this.emit('update', this.sorted[i]);
+    nodes = self.element.childNodes;
+    for (var j = 0; j < nodes.length; j++) {
+        var key = nodes[j].dataset.key;
+        if (rows[key].index !== j || key === row.key) {
+            rows[key].index = j;
+            rows[key].emit('update');
+            self.emit('update', rows[key]);
+        }
     }
 };
 
