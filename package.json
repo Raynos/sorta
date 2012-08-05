@@ -1,0 +1,29 @@
+{
+    "name" : "sorta",
+    "version" : "0.0.0",
+    "description" : "preserve the ordering of html elements in the browser as updates stream in",
+    "main" : "index.js",
+    "directories" : {
+        "example" : "example",
+        "test" : "test"
+    },
+    "repository" : {
+        "type" : "git",
+        "url" : "git://github.com/substack/sorta.git"
+    },
+    "homepage" : "https://github.com/substack/sorta",
+    "keywords" : [
+        "ui",
+        "browserify",
+        "browser",
+        "sort",
+        "order",
+        "stream"
+    ],
+    "author" : {
+        "name" : "James Halliday",
+        "email" : "mail@substack.net",
+        "url" : "http://substack.net"
+    },
+    "license" : "MIT"
+}
